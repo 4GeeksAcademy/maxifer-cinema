@@ -1,26 +1,165 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello World with Typescript</title>
+    <title>Cinema Seat Manager</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      .seat {
+        width: 35px;
+        height: 35px;
+        margin: 4px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+      .seat:hover:not(:disabled) {
+        transform: scale(1.1);
+      }
+      .seat.available {
+        background-color: #10b981;
+        color: white;
+        border: 2px solid #059669;
+      }
+      .seat.available:hover {
+        background-color: #059669;
+      }
+      .seat.occupied {
+        background-color: #ef4444;
+        color: white;
+        border: 2px solid #dc2626;
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+      .seat.selected {
+        background-color: #f97316;
+        color: white;
+        border: 2px solid #ea580c;
+        box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .row-label {
+        width: 30px;
+        font-weight: bold;
+        color: #374151;
+        text-align: center;
+      }
+      .seats-row {
+        display: flex;
+        gap: 2px;
+      }
+      .column-numbers {
+        margin-left: 30px;
+        display: flex;
+        gap: 2px;
+      }
+      .column-num {
+        width: 35px;
+        text-align: center;
+        font-size: 12px;
+        font-weight: bold;
+        color: #6b7280;
+        margin: 4px 2px 0 2px;
+      }
+    </style>
   </head>
-  <body class="min-h-screen bg-slate-100 text-slate-900">
-    <main class="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center gap-6 p-6">
-      <h1 class="text-4xl font-bold tracking-tight">Hello World with Typescript</h1>
+  <body class="bg-gray-100 p-6">
+    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-1">🎬 Cinema Seats</h1>
+        <p class="text-gray-500">Selecciona tus asientos</p>
+      </div>
 
-      <section class="w-full max-w-md overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <img
-          src="/rigo-baby.jpg"
-          alt="Hello Rigo"
-          class="h-64 w-full bg-slate-50 object-contain p-2"
-        />
-        <div class="p-5">
-          <h2 class="text-xl font-semibold text-slate-900">Hello Rigo</h2>
-          <p id="app" class="mt-2 text-sm text-slate-600"></p>
+      <!-- Stats -->
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <div class="bg-blue-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-blue-600">80</div>
+          <div class="text-sm text-gray-600">Total</div>
         </div>
-      </section>
-    </main>
+        <div class="bg-green-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-green-600" id="available-count">80</div>
+          <div class="text-sm text-gray-600">Libres</div>
+        </div>
+        <div class="bg-red-50 p-4 rounded-lg text-center">
+          <div class="text-3xl font-bold text-red-600" id="occupied-count">0</div>
+          <div class="text-sm text-gray-600">Ocupados</div>
+        </div>
+      </div>
+
+      <!-- Screen -->
+      <div class="text-center mb-8">
+        <p class="text-xs font-bold text-gray-500 tracking-widest mb-2">PANTALLA</p>
+        <div class="w-full border-b-4 border-gray-400 pb-4"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="flex justify-center gap-8 mb-8 pb-6 border-b border-gray-300">
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 bg-green-500 rounded border-2 border-green-600"></div>
+          <span class="text-sm text-gray-700">Libre</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 bg-red-500 rounded border-2 border-red-600"></div>
+          <span class="text-sm text-gray-700">Ocupado</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-6 h-6 bg-orange-500 rounded border-2 border-orange-600"></div>
+          <span class="text-sm text-gray-700">Seleccionado</span>
+        </div>
+      </div>
+
+      <!-- Seats Container -->
+      <div class="mb-8">
+        <!-- Column numbers -->
+        <div class="column-numbers" id="column-numbers">
+          <!-- Generated -->
+        </div>
+
+        <!-- Seat rows -->
+        <div id="seats-container">
+          <!-- Generated -->
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="grid grid-cols-2 gap-4 mb-6">
+        <button
+          id="find-adjacent-btn"
+          class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition"
+        >
+          🔍 Contiguos
+        </button>
+        <button
+          id="reset-btn"
+          class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-lg transition"
+        >
+          ↺ Reiniciar
+        </button>
+      </div>
+
+      <!-- Status -->
+      <div id="status-message" class="text-center text-sm text-gray-600 h-6 mb-4">
+        Haz clic en un asiento para reservar
+      </div>
+
+      <!-- Selection Info -->
+      <div id="selection-info" class="hidden bg-orange-50 p-4 rounded-lg text-center border-2 border-orange-300">
+        <p class="text-sm"><strong>Seleccionado:</strong> <span id="selected-seat" class="text-orange-600 font-bold text-lg">-</span></p>
+        <p class="text-xs text-gray-600 mt-2">Haz clic de nuevo para confirmar</p>
+      </div>
+    </div>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
