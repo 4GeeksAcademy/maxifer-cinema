@@ -17,7 +17,7 @@ let cinema: SeatMatrix = [];
 let selectedSeat: { row: number; column: number } | null = null;
 
 const baseStatusClass =
-  "rounded-3xl bg-slate-950/80 px-5 py-4 text-center text-sm font-semibold ring-1 ring-white/10";
+  "rounded-lg bg-black/30 px-4 py-3 text-center text-sm font-semibold ring-1 ring-white/10";
 
 /**
  * Inicializa una matriz de asientos con todos los asientos disponibles (0)
@@ -34,7 +34,7 @@ function initializeSeats(): SeatMatrix {
 }
 
 /**
- * Reserva un asiento en una posición específica (fila, columna)
+ * Reserva un asiento en una posicion especifica (fila, columna)
  */
 function reserveSeat(seats: SeatMatrix, row: number, column: number): boolean {
   if (row < 1 || row > ROWS || column < 1 || column > COLUMNS) {
@@ -53,7 +53,7 @@ function reserveSeat(seats: SeatMatrix, row: number, column: number): boolean {
 }
 
 /**
- * Cuenta y devuelve cuántos asientos están ocupados y disponibles en toda la sala
+ * Cuenta y devuelve cuantos asientos estan ocupados y disponibles en toda la sala
  */
 function countSeats(seats: SeatMatrix): { occupied: number; available: number } {
   let occupied = 0;
@@ -126,10 +126,10 @@ function renderSeats(): void {
   container.innerHTML = "";
   columnNumbers.innerHTML = "";
 
-  columnNumbers.innerHTML = '<div></div>';
+  columnNumbers.innerHTML = "<div></div>";
   for (let col = 1; col <= COLUMNS; col++) {
     const num = document.createElement("div");
-    num.className = "text-slate-400";
+    num.className = "text-zinc-500";
     num.textContent = col.toString();
     columnNumbers.appendChild(num);
   }
@@ -139,10 +139,10 @@ function renderSeats(): void {
     const rowLetter = String.fromCharCode(64 + rowNumber);
 
     const rowDiv = document.createElement("div");
-    rowDiv.className = "flex items-center gap-2";
+    rowDiv.className = "seat-grid-row";
 
     const label = document.createElement("div");
-    label.className = "w-12 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400";
+    label.className = "seat-row-label";
     label.textContent = rowLetter;
     rowDiv.appendChild(label);
 
@@ -163,12 +163,12 @@ function renderSeats(): void {
         button.classList.add("bg-rose-500", "text-white", "ring-2", "ring-rose-600");
         button.disabled = true;
       } else {
-        button.textContent = "L";
-        button.classList.add("bg-emerald-500", "text-white", "ring-2", "ring-emerald-600", "hover:bg-emerald-600");
+        button.textContent = colNumber.toString();
+        button.classList.add("bg-emerald-500", "text-emerald-950", "ring-2", "ring-emerald-600", "hover:bg-emerald-400");
 
         if (selectedSeat && selectedSeat.row === rowNumber && selectedSeat.column === colNumber) {
-          button.classList.remove("bg-emerald-500", "ring-emerald-600", "hover:bg-emerald-600");
-          button.classList.add("bg-orange-500", "ring-orange-500", "shadow-[0_0_0_10px_rgba(251,146,60,0.24)]");
+          button.classList.remove("bg-emerald-500", "text-emerald-950", "ring-emerald-600", "hover:bg-emerald-400");
+          button.classList.add("bg-orange-500", "text-white", "ring-orange-500", "shadow-[0_0_0_6px_rgba(251,146,60,0.22)]");
           button.setAttribute("aria-pressed", "true");
         }
 
@@ -198,19 +198,19 @@ function handleSeatClick(row: number, column: number): void {
 
   if (selectedSeat && selectedSeat.row === row && selectedSeat.column === column) {
     if (reserveSeat(cinema, row, column)) {
-      statusMessage.textContent = `✅ ¡Asiento ${seatId} reservado!`;
+      statusMessage.textContent = `Asiento ${seatId} reservado.`;
       statusMessage.className = `${baseStatusClass} text-emerald-300`;
       selectedSeat = null;
       selectionInfo.classList.add("hidden");
     } else {
-      statusMessage.textContent = "❌ Error al reservar";
+      statusMessage.textContent = "Error al reservar.";
       statusMessage.className = `${baseStatusClass} text-rose-300`;
     }
   } else {
     selectedSeat = { row, column };
     selectedSeatSpan.textContent = seatId;
     selectionInfo.classList.remove("hidden");
-    statusMessage.textContent = "Confirma haciendo clic de nuevo";
+    statusMessage.textContent = "Confirma haciendo clic de nuevo.";
     statusMessage.className = `${baseStatusClass} text-amber-300`;
   }
 
@@ -220,7 +220,7 @@ function handleSeatClick(row: number, column: number): void {
 }
 
 /**
- * Actualiza las estadísticas en la interfaz
+ * Actualiza las estadisticas en la interfaz
  */
 function updateStatistics(): void {
   const { occupied, available } = countSeats(cinema);
@@ -270,11 +270,11 @@ function handleFindAdjacent(): void {
     reserveSeat(cinema, result.row, col1);
     reserveSeat(cinema, result.row, col2);
 
-    statusMessage.textContent = `✅ ¡Contiguos reservados: ${rowLetter}${col1}-${col2}!`;
+    statusMessage.textContent = `Contiguos reservados: ${rowLetter}${col1}-${col2}.`;
     statusMessage.className = `${baseStatusClass} text-emerald-300`;
     selectionInfo.classList.add("hidden");
   } else {
-    statusMessage.textContent = "❌ Sin asientos contiguos disponibles";
+    statusMessage.textContent = "Sin asientos contiguos disponibles.";
     statusMessage.className = `${baseStatusClass} text-rose-300`;
   }
 
@@ -294,8 +294,8 @@ function handleReset(): void {
   const selectionInfo = document.getElementById("selection-info");
 
   if (statusMessage) {
-    statusMessage.textContent = "Haz clic en un asiento para reservar";
-    statusMessage.className = `${baseStatusClass} text-slate-300`;
+    statusMessage.textContent = "Haz clic en un asiento para reservar.";
+    statusMessage.className = `${baseStatusClass} text-zinc-300`;
   }
   if (selectionInfo) {
     selectionInfo.classList.add("hidden");
@@ -307,7 +307,7 @@ function handleReset(): void {
 }
 
 /**
- * Inicializa la aplicación
+ * Inicializa la aplicacion
  */
 function init(): void {
   cinema = initializeSeats();
@@ -327,7 +327,7 @@ function init(): void {
     resetBtn.addEventListener("click", handleReset);
   }
 
-  console.log("Cinema Seat Manager inicializado ✅");
+  console.log("Cinema Seat Manager inicializado.");
 }
 
 if (document.readyState === "loading") {
