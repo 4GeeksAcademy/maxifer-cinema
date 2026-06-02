@@ -8,12 +8,16 @@ type SeatMatrix = number[][];
 // Constantes para la sala
 const ROWS = 8;
 const COLUMNS = 10;
+const TOTAL = ROWS * COLUMNS;
 const AVAILABLE = 0;
 const OCCUPIED = 1;
 
 // Estado global
 let cinema: SeatMatrix = [];
 let selectedSeat: { row: number; column: number } | null = null;
+
+const baseStatusClass =
+  "rounded-3xl bg-slate-950/80 px-5 py-4 text-center text-sm font-semibold ring-1 ring-white/10";
 
 /**
  * Inicializa una matriz de asientos con todos los asientos disponibles (0)
@@ -33,7 +37,6 @@ function initializeSeats(): SeatMatrix {
  * Reserva un asiento en una posición específica (fila, columna)
  */
 function reserveSeat(seats: SeatMatrix, row: number, column: number): boolean {
-  // Validar que los números de fila y columna estén en rango válido (1-8, 1-10)
   if (row < 1 || row > ROWS || column < 1 || column > COLUMNS) {
     return false;
   }
@@ -41,12 +44,10 @@ function reserveSeat(seats: SeatMatrix, row: number, column: number): boolean {
   const seatIndex = row - 1;
   const columnIndex = column - 1;
 
-  // Validar si el asiento ya está ocupado
   if (seats[seatIndex][columnIndex] === OCCUPIED) {
     return false;
   }
 
-  // Reservar el asiento
   seats[seatIndex][columnIndex] = OCCUPIED;
   return true;
 }
@@ -73,7 +74,6 @@ function countSeats(seats: SeatMatrix): { occupied: number; available: number } 
 
 /**
  * Imprime el estado actual de la sala en la consola.
- * Usa X para ocupados, L para libres, e incluye números de fila y columna.
  */
 function printSeatMatrix(seats: SeatMatrix): void {
   console.log("\nEstado de la sala:");
@@ -102,7 +102,6 @@ function printSeatMatrix(seats: SeatMatrix): void {
 function findTwoAdjacentSeats(seats: SeatMatrix): { row: number; columns: [number, number] } | null {
   for (let i = 0; i < ROWS; i++) {
     for (let j = 0; j < COLUMNS - 1; j++) {
-      // Verificar si dos asientos contiguos (j y j+1) están libres
       if (seats[i][j] === AVAILABLE && seats[i][j + 1] === AVAILABLE) {
         return {
           row: i + 1,
@@ -127,55 +126,50 @@ function renderSeats(): void {
   container.innerHTML = "";
   columnNumbers.innerHTML = "";
 
-  // Generar números de columnas
-  columnNumbers.innerHTML = '<div class="column-num"></div>'; // Espacio para la etiqueta de fila
+  columnNumbers.innerHTML = '<div></div>';
   for (let col = 1; col <= COLUMNS; col++) {
     const num = document.createElement("div");
-    num.className = "column-num";
+    num.className = "text-slate-400";
     num.textContent = col.toString();
     columnNumbers.appendChild(num);
   }
 
-  // Generar filas
   for (let row = 0; row < ROWS; row++) {
     const rowNumber = row + 1;
     const rowLetter = String.fromCharCode(64 + rowNumber);
 
     const rowDiv = document.createElement("div");
-    rowDiv.className = "row";
+    rowDiv.className = "flex items-center gap-2";
 
-    // Label de fila
     const label = document.createElement("div");
-    label.className = "row-label";
+    label.className = "w-12 text-sm font-semibold uppercase tracking-[0.18em] text-slate-400";
     label.textContent = rowLetter;
     rowDiv.appendChild(label);
 
-    // Contenedor de asientos
     const seatsRowDiv = document.createElement("div");
-    seatsRowDiv.className = "seats-row";
+    seatsRowDiv.className = "seat-row";
 
-    // Crear asientos
     for (let col = 0; col < COLUMNS; col++) {
       const seatNumber = cinema[row][col];
       const colNumber = col + 1;
+      const seatId = `${rowLetter}${colNumber}`;
 
       const button = document.createElement("button");
       button.className = "seat";
-      button.textContent = seatNumber === OCCUPIED ? "X" : "L";
+      button.setAttribute("aria-label", `${seatId} ${seatNumber === OCCUPIED ? "ocupado" : "disponible"}`);
 
       if (seatNumber === OCCUPIED) {
-        button.classList.add("occupied");
+        button.textContent = "X";
+        button.classList.add("bg-rose-500", "text-white", "ring-2", "ring-rose-600");
         button.disabled = true;
       } else {
-        button.classList.add("available");
+        button.textContent = "L";
+        button.classList.add("bg-emerald-500", "text-white", "ring-2", "ring-emerald-600", "hover:bg-emerald-600");
 
-        if (
-          selectedSeat &&
-          selectedSeat.row === rowNumber &&
-          selectedSeat.column === colNumber
-        ) {
-          button.classList.remove("available");
-          button.classList.add("selected");
+        if (selectedSeat && selectedSeat.row === rowNumber && selectedSeat.column === colNumber) {
+          button.classList.remove("bg-emerald-500", "ring-emerald-600", "hover:bg-emerald-600");
+          button.classList.add("bg-orange-500", "ring-orange-500", "shadow-[0_0_0_10px_rgba(251,146,60,0.24)]");
+          button.setAttribute("aria-pressed", "true");
         }
 
         button.addEventListener("click", () => handleSeatClick(rowNumber, colNumber));
@@ -202,25 +196,22 @@ function handleSeatClick(row: number, column: number): void {
   const rowLetter = String.fromCharCode(64 + row);
   const seatId = `${rowLetter}${column}`;
 
-  // Si el asiento ya estaba seleccionado, deseleccionar y reservar
   if (selectedSeat && selectedSeat.row === row && selectedSeat.column === column) {
-    // Reservar el asiento
     if (reserveSeat(cinema, row, column)) {
       statusMessage.textContent = `✅ ¡Asiento ${seatId} reservado!`;
-      statusMessage.className = "text-center text-sm text-green-600 font-semibold";
+      statusMessage.className = `${baseStatusClass} text-emerald-300`;
       selectedSeat = null;
       selectionInfo.classList.add("hidden");
     } else {
       statusMessage.textContent = "❌ Error al reservar";
-      statusMessage.className = "text-center text-sm text-red-600 font-semibold";
+      statusMessage.className = `${baseStatusClass} text-rose-300`;
     }
   } else {
-    // Seleccionar el asiento
     selectedSeat = { row, column };
     selectedSeatSpan.textContent = seatId;
     selectionInfo.classList.remove("hidden");
     statusMessage.textContent = "Confirma haciendo clic de nuevo";
-    statusMessage.className = "text-center text-sm text-orange-600 font-semibold";
+    statusMessage.className = `${baseStatusClass} text-amber-300`;
   }
 
   updateStatistics();
@@ -234,14 +225,30 @@ function handleSeatClick(row: number, column: number): void {
 function updateStatistics(): void {
   const { occupied, available } = countSeats(cinema);
 
+  const totalCount = document.getElementById("total-count");
   const occupiedCount = document.getElementById("occupied-count");
   const availableCount = document.getElementById("available-count");
+  const dlTotal = document.getElementById("dl-total");
+  const dlOccupied = document.getElementById("dl-occupied");
+  const dlAvailable = document.getElementById("dl-available");
 
+  if (totalCount) {
+    totalCount.textContent = TOTAL.toString();
+  }
   if (occupiedCount) {
     occupiedCount.textContent = occupied.toString();
   }
   if (availableCount) {
     availableCount.textContent = available.toString();
+  }
+  if (dlTotal) {
+    dlTotal.textContent = TOTAL.toString();
+  }
+  if (dlOccupied) {
+    dlOccupied.textContent = occupied.toString();
+  }
+  if (dlAvailable) {
+    dlAvailable.textContent = available.toString();
   }
 }
 
@@ -256,21 +263,19 @@ function handleFindAdjacent(): void {
   if (!statusMessage || !selectionInfo) return;
 
   if (result) {
-    // Seleccionar los dos asientos encontrados
     const [col1, col2] = result.columns;
     const rowLetter = String.fromCharCode(64 + result.row);
     selectedSeat = { row: result.row, column: col1 };
 
-    // Reservar ambos asientos
     reserveSeat(cinema, result.row, col1);
     reserveSeat(cinema, result.row, col2);
 
     statusMessage.textContent = `✅ ¡Contiguos reservados: ${rowLetter}${col1}-${col2}!`;
-    statusMessage.className = "text-center text-sm text-green-600 font-semibold";
+    statusMessage.className = `${baseStatusClass} text-emerald-300`;
     selectionInfo.classList.add("hidden");
   } else {
     statusMessage.textContent = "❌ Sin asientos contiguos disponibles";
-    statusMessage.className = "text-center text-sm text-red-600 font-semibold";
+    statusMessage.className = `${baseStatusClass} text-rose-300`;
   }
 
   updateStatistics();
@@ -290,7 +295,7 @@ function handleReset(): void {
 
   if (statusMessage) {
     statusMessage.textContent = "Haz clic en un asiento para reservar";
-    statusMessage.className = "text-center text-sm text-gray-600";
+    statusMessage.className = `${baseStatusClass} text-slate-300`;
   }
   if (selectionInfo) {
     selectionInfo.classList.add("hidden");
@@ -305,15 +310,12 @@ function handleReset(): void {
  * Inicializa la aplicación
  */
 function init(): void {
-  // Inicializar la sala
   cinema = initializeSeats();
 
-  // Renderizar asientos iniciales
   renderSeats();
   updateStatistics();
   printSeatMatrix(cinema);
 
-  // Conectar botones
   const findAdjacentBtn = document.getElementById("find-adjacent-btn");
   const resetBtn = document.getElementById("reset-btn");
 
@@ -328,7 +330,6 @@ function init(): void {
   console.log("Cinema Seat Manager inicializado ✅");
 }
 
-// Iniciar cuando el DOM esté listo
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", init);
 } else {

@@ -4,159 +4,145 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cinema Seat Manager</title>
-    <style>
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      }
-      .seat {
-        width: 35px;
-        height: 35px;
-        margin: 4px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 12px;
-        transition: all 0.2s;
-      }
-      .seat:hover:not(:disabled) {
-        transform: scale(1.1);
-      }
-      .seat.available {
-        background-color: #10b981;
-        color: white;
-        border: 2px solid #059669;
-      }
-      .seat.available:hover {
-        background-color: #059669;
-      }
-      .seat.occupied {
-        background-color: #ef4444;
-        color: white;
-        border: 2px solid #dc2626;
-        cursor: not-allowed;
-        opacity: 0.6;
-      }
-      .seat.selected {
-        background-color: #f97316;
-        color: white;
-        border: 2px solid #ea580c;
-        box-shadow: 0 0 10px rgba(249, 115, 22, 0.8);
-      }
-      .row {
-        display: flex;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-      .row-label {
-        width: 30px;
-        font-weight: bold;
-        color: #374151;
-        text-align: center;
-      }
-      .seats-row {
-        display: flex;
-        gap: 2px;
-      }
-      .column-numbers {
-        margin-left: 30px;
-        display: flex;
-        gap: 2px;
-      }
-      .column-num {
-        width: 35px;
-        text-align: center;
-        font-size: 12px;
-        font-weight: bold;
-        color: #6b7280;
-        margin: 4px 2px 0 2px;
-      }
-    </style>
+    <meta
+      name="description"
+      content="Gestor de asientos de cine responsivo con Tailwind."
+    />
+    <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body class="bg-gray-100 p-6">
-    <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-8">
-      <!-- Header -->
-      <div class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-1">🎬 Cinema Seats</h1>
-        <p class="text-gray-500">Selecciona tus asientos</p>
-      </div>
+  <body>
+    <div class="app-shell min-h-screen bg-slate-950 text-slate-100">
+      <div class="mx-auto w-full max-w-full px-4 py-6 sm:px-6 lg:px-8">
+        <main class="space-y-8 flex-1">
+          <header class="rounded-[2rem] border border-white/10 bg-slate-900/80 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur-xl sm:p-8">
+            <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <div class="max-w-2xl">
+                <p class="text-sm uppercase tracking-[0.3em] text-sky-300/70">Gestor de asientos</p>
+                <h1 class="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                  Reserva tu lugar en la sala
+                </h1>
+                <p class="mt-3 text-base leading-7 text-slate-300/90">
+                  Selecciona asientos libres, revisa la disponibilidad y confirma tu reserva con un diseño claro y táctil.
+                </p>
+              </div>
 
-      <!-- Stats -->
-      <div class="grid grid-cols-3 gap-4 mb-8">
-        <div class="bg-blue-50 p-4 rounded-lg text-center">
-          <div class="text-3xl font-bold text-blue-600">80</div>
-          <div class="text-sm text-gray-600">Total</div>
-        </div>
-        <div class="bg-green-50 p-4 rounded-lg text-center">
-          <div class="text-3xl font-bold text-green-600" id="available-count">80</div>
-          <div class="text-sm text-gray-600">Libres</div>
-        </div>
-        <div class="bg-red-50 p-4 rounded-lg text-center">
-          <div class="text-3xl font-bold text-red-600" id="occupied-count">0</div>
-          <div class="text-sm text-gray-600">Ocupados</div>
-        </div>
-      </div>
+              <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <article class="rounded-3xl bg-slate-950/90 p-4 text-center ring-1 ring-white/5">
+                  <p class="text-3xl font-semibold text-white" id="total-count">80</p>
+                  <p class="mt-2 text-xs uppercase tracking-[0.28em] text-slate-400">Total</p>
+                </article>
+                <article class="rounded-3xl bg-slate-950/90 p-4 text-center ring-1 ring-white/5">
+                  <p class="text-3xl font-semibold text-emerald-400" id="available-count">80</p>
+                  <p class="mt-2 text-xs uppercase tracking-[0.28em] text-slate-400">Libres</p>
+                </article>
+                <article class="rounded-3xl bg-slate-950/90 p-4 text-center ring-1 ring-white/5">
+                  <p class="text-3xl font-semibold text-rose-400" id="occupied-count">0</p>
+                  <p class="mt-2 text-xs uppercase tracking-[0.28em] text-slate-400">Ocupados</p>
+                </article>
+              </div>
+            </div>
+          </header>
 
-      <!-- Screen -->
-      <div class="text-center mb-8">
-        <p class="text-xs font-bold text-gray-500 tracking-widest mb-2">PANTALLA</p>
-        <div class="w-full border-b-4 border-gray-400 pb-4"></div>
-      </div>
+          <section class="grid gap-6 xl:grid-cols-[1.5fr_0.9fr]">
+            <article class="rounded-[2rem] bg-slate-900/90 p-6 ring-1 ring-white/10 shadow-xl">
+              <div class="mb-8 space-y-4 border-b border-slate-700/60 pb-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.3em] text-sky-300/80">Visualización</p>
+                    <h2 class="mt-2 text-2xl font-semibold text-white">Mapa de la sala</h2>
+                  </div>
+                  <div class="rounded-3xl bg-slate-950/80 px-4 py-3 text-slate-300 ring-1 ring-white/5">
+                    <p class="text-xs uppercase tracking-[0.24em] text-slate-400">Indicador</p>
+                    <p class="mt-2 text-base font-semibold text-slate-200">Pantalla arriba</p>
+                  </div>
+                </div>
+                <div class="text-center">
+                  <div class="mx-auto h-3 w-3/5 rounded-full bg-slate-700 shadow-[0_0_0_16px_rgba(148,163,184,0.06)]"></div>
+                </div>
+              </div>
 
-      <!-- Legend -->
-      <div class="flex justify-center gap-8 mb-8 pb-6 border-b border-gray-300">
-        <div class="flex items-center gap-2">
-          <div class="w-6 h-6 bg-green-500 rounded border-2 border-green-600"></div>
-          <span class="text-sm text-gray-700">Libre</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="w-6 h-6 bg-red-500 rounded border-2 border-red-600"></div>
-          <span class="text-sm text-gray-700">Ocupado</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="w-6 h-6 bg-orange-500 rounded border-2 border-orange-600"></div>
-          <span class="text-sm text-gray-700">Seleccionado</span>
-        </div>
-      </div>
+              <div class="space-y-6">
+                <div class="rounded-3xl border border-slate-800 bg-slate-950/90 px-4 py-4 sm:px-0">
+                  <div
+                    id="column-numbers"
+                    class="hidden sm:grid min-w-max grid-cols-[3.5rem_repeat(10,minmax(1.5rem,1fr))] gap-2 pb-3 text-center text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-slate-400 sm:text-xs sm:tracking-[0.18em]"
+                  ></div>
+                  <div id="seats-container" class="space-y-3"></div>
+                </div>
 
-      <!-- Seats Container -->
-      <div class="mb-8">
-        <!-- Column numbers -->
-        <div class="column-numbers" id="column-numbers">
-          <!-- Generated -->
-        </div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <button
+                    id="find-adjacent-btn"
+                    class="min-h-[3rem] rounded-3xl bg-sky-500 px-5 text-sm font-semibold text-white transition hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-300"
+                  >
+                    🔍 Buscar contiguos
+                  </button>
+                  <button
+                    id="reset-btn"
+                    class="min-h-[3rem] rounded-3xl bg-slate-700 px-5 text-sm font-semibold text-white transition hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  >
+                    ↺ Reiniciar sala
+                  </button>
+                </div>
 
-        <!-- Seat rows -->
-        <div id="seats-container">
-          <!-- Generated -->
-        </div>
-      </div>
+                <div
+                  id="status-message"
+                  class="rounded-3xl bg-slate-950/80 px-5 py-4 text-center text-sm font-semibold text-slate-300 ring-1 ring-white/10"
+                >
+                  Haz clic en un asiento para reservar.
+                </div>
 
-      <!-- Buttons -->
-      <div class="grid grid-cols-2 gap-4 mb-6">
-        <button
-          id="find-adjacent-btn"
-          class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg transition"
-        >
-          🔍 Contiguos
-        </button>
-        <button
-          id="reset-btn"
-          class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 rounded-lg transition"
-        >
-          ↺ Reiniciar
-        </button>
-      </div>
+                <div
+                  id="selection-info"
+                  class="hidden rounded-3xl bg-amber-500/10 px-5 py-4 text-center text-sm text-amber-200 ring-1 ring-amber-400/20"
+                >
+                  <p class="font-semibold text-amber-100">
+                    Seleccionado: <span id="selected-seat" class="text-xl">-</span>
+                  </p>
+                  <p class="mt-2 text-xs text-slate-300">Haz clic de nuevo para confirmar la reserva.</p>
+                </div>
+              </div>
+            </article>
 
-      <!-- Status -->
-      <div id="status-message" class="text-center text-sm text-gray-600 h-6 mb-4">
-        Haz clic en un asiento para reservar
-      </div>
+            <aside class="space-y-6">
+              <section class="rounded-[2rem] bg-slate-900/90 p-6 ring-1 ring-white/10 shadow-xl">
+                <h2 class="text-lg font-semibold text-white">Detalle de la sala</h2>
+                <dl class="mt-6 grid gap-4">
+                  <div class="rounded-3xl bg-slate-950/80 p-4">
+                    <dt class="text-xs uppercase tracking-[0.26em] text-slate-400">Total de asientos</dt>
+                    <dd class="mt-2 text-3xl font-semibold text-white" id="dl-total">80</dd>
+                  </div>
+                  <div class="rounded-3xl bg-slate-950/80 p-4">
+                    <dt class="text-xs uppercase tracking-[0.26em] text-slate-400">Asientos libres</dt>
+                    <dd class="mt-2 text-3xl font-semibold text-emerald-400" id="dl-available">80</dd>
+                  </div>
+                  <div class="rounded-3xl bg-slate-950/80 p-4">
+                    <dt class="text-xs uppercase tracking-[0.26em] text-slate-400">Asientos ocupados</dt>
+                    <dd class="mt-2 text-3xl font-semibold text-rose-400" id="dl-occupied">0</dd>
+                  </div>
+                </dl>
+              </section>
 
-      <!-- Selection Info -->
-      <div id="selection-info" class="hidden bg-orange-50 p-4 rounded-lg text-center border-2 border-orange-300">
-        <p class="text-sm"><strong>Seleccionado:</strong> <span id="selected-seat" class="text-orange-600 font-bold text-lg">-</span></p>
-        <p class="text-xs text-gray-600 mt-2">Haz clic de nuevo para confirmar</p>
+              <section class="rounded-[2rem] bg-slate-900/90 p-6 ring-1 ring-white/10 shadow-xl">
+                <h2 class="text-lg font-semibold text-white">Leyenda</h2>
+                <div class="mt-5 space-y-3">
+                  <div class="flex items-center gap-3">
+                    <span class="h-4 w-4 rounded-lg bg-emerald-500 ring-2 ring-emerald-600"></span>
+                    <p class="text-sm text-slate-300">Disponible</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="h-4 w-4 rounded-lg bg-rose-500 ring-2 ring-rose-600"></span>
+                    <p class="text-sm text-slate-300">Ocupado</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="h-4 w-4 rounded-lg bg-orange-500 ring-2 ring-orange-600"></span>
+                    <p class="text-sm text-slate-300">Seleccionado</p>
+                  </div>
+                </div>
+              </section>
+            </aside>
+          </section>
+        </main>
       </div>
     </div>
 
